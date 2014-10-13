@@ -5,6 +5,7 @@ from xml.etree import ElementTree as ET
 import sys
 from collections import defaultdict
 import os
+from pyExcelerator import *
 
 class CtsResultParser:
 
@@ -133,6 +134,27 @@ def output(names):
          for i in a:
             print "                           %s\r"%(i)
 
+def xls_produce(names):
+   w = Workbook()
+   ws = w.add_sheet("ctscompare")
+
+   package=defaultdict(lambda : defaultdict(list))
+   for name in names:
+      p,c,t = formatname(name)
+      package[p][c].append(t)
+
+   line = 0
+   
+   for x,y in package.iteritems():
+      ws.write(line,0,str(x))
+      for z,a in y.iteritems():
+         ws.write(line,1, str(z))
+         for i in a:
+            ws.write(line,2,str(i))
+            line+=1
+   w.save('compare.xls')
+
+
 def get_all_xmls(dir32, dir64):
    xmldir32s = os.listdir(dir32)
    xmldir64s = os.listdir(dir64)
@@ -176,4 +198,4 @@ if __name__ == "__main__":
    print "64 fails but 32 pass :"
    print "nums: %d"%(len(p2fails_p1pass))
    output(p2fails_p1pass)
-         
+   xls_produce(p2fails_p1pass)
